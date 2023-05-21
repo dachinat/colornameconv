@@ -2,6 +2,8 @@ package colornameconv
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/crazy3lf/colorconv"
 	"io"
 	"math"
@@ -26,12 +28,8 @@ type Color struct {
 	L    float64 `json:"l"`
 }
 
-func New(hex string) string {
-	hex = strings.ToUpper(hex)
-
-	if hex[0:1] != "#" {
-		hex = "#" + hex
-	}
+func New(hex string) (string, error) {
+	hex = normalizeHex(hex)
 
 	color, _ := colorconv.HexToColor(hex)
 	h, s, l := colorconv.ColorToHSL(color)
@@ -41,17 +39,17 @@ func New(hex string) string {
 	df, cl := -1, -1
 	colors := readJson()
 
-	for i := 0; i < len(colors.Colors); i++ {
-
-		color := colors.Colors[i]
+	for i, color := range colors.Colors {
 
 		if hex == "#"+color.Hex {
-			return color.Name
+			return color.Name, nil
 		}
 
 		ndf1 = int(math.Pow(float64(r-color.R), 2) + math.Pow(float64(g-color.G), 2) + math.Pow(float64(b-color.B), 2))
 		ndf2 = int(math.Pow(h-color.H, 2) + math.Pow(s-color.S, 2) + math.Pow(l-color.L, 2))
+
 		ndf = ndf1 + ndf2*2
+
 		if df < 0 || df > ndf {
 			df = ndf
 			cl = i
@@ -59,10 +57,20 @@ func New(hex string) string {
 	}
 
 	if cl < 0 {
-		return "Invalid color"
+		return "", errors.New("Invalid color definition")
 	} else {
-		return colors.Colors[cl].Name
+		return colors.Colors[cl].Name, nil
 	}
+}
+
+func normalizeHex(hex string) string {
+	hex = strings.ToUpper(hex)
+
+	if !strings.HasPrefix(hex, "#") {
+		hex = "#" + hex
+	}
+
+	return hex
 }
 
 func readJson() Colors {
@@ -70,12 +78,21 @@ func readJson() Colors {
 	if !ok {
 		panic("No caller information")
 	}
-	in, _ := os.Open(path.Dir(filename) + "/colors.json")
+	in, err := os.Open(path.Dir(filename) + "/colors.json")
+
+	if err != nil {
+		panic(fmt.Sprintf("Failed to read JSON file: %s", err))
+	}
+
 	byteValue, _ := io.ReadAll(in)
 
 	var colors Colors
 
-	json.Unmarshal(byteValue, &colors)
+	err = json.Unmarshal(byteValue, &colors)
+
+	if err != nil {
+		panic(fmt.Sprintf("Failed to unmarshal JSON: %s", err))
+	}
 
 	return colors
 }
