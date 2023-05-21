@@ -1,5 +1,5 @@
 module github.com/dachinat/colornameconv
 
-go 1.20
+go 1.18
 
-require github.com/crazy3lf/colorconv v1.2.0 // indirect
+require github.com/crazy3lf/colorconv v1.2.0

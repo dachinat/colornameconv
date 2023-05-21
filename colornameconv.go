@@ -6,6 +6,8 @@ import (
 	"io"
 	"math"
 	"os"
+	"path"
+	"runtime"
 	"strings"
 )
 
@@ -64,7 +66,11 @@ func New(hex string) string {
 }
 
 func readJson() Colors {
-	in, _ := os.Open("./colors.json")
+	_, filename, _, ok := runtime.Caller(0)
+	if !ok {
+		panic("No caller information")
+	}
+	in, _ := os.Open(path.Dir(filename) + "/colors.json")
 	byteValue, _ := io.ReadAll(in)
 
 	var colors Colors
