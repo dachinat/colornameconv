@@ -1,4 +1,4 @@
-module colornameconv
+module github.com/dachinat/colornameconv
 
 go 1.20
 
