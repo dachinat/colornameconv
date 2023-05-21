@@ -18,36 +18,38 @@ type Colors struct {
 }
 
 type Color struct {
-	Hex  string  `json:"hex"`
-	Name string  `json:"name"`
-	R    uint8   `json:"r"`
-	G    uint8   `json:"g"`
-	B    uint8   `json:"b"`
-	H    float64 `json:"h"`
-	S    float64 `json:"s"`
-	L    float64 `json:"l"`
+	Hex  string `json:"hex"`
+	Name string `json:"name"`
+	R    int    `json:"r"`
+	G    int    `json:"g"`
+	B    int    `json:"b"`
+	H    int    `json:"h"`
+	S    int    `json:"s"`
+	L    int    `json:"l"`
 }
 
 func New(hex string) (string, error) {
 	hex = normalizeHex(hex)
 
-	color, _ := colorconv.HexToColor(hex)
-	h, s, l := colorconv.ColorToHSL(color)
 	r, g, b, _ := colorconv.HexToRGB(hex)
 
+	h, s, l := HexToHSL(hex)
+
 	ndf1, ndf2, ndf := 0, 0, 0
-	df, cl := -1, -1
+	cl, df := -1, -1
 	colors := readJson()
 
-	for i, color := range colors.Colors {
+	fmt.Println(colors.Colors[900])
+
+	for i := 0; i < len(colors.Colors); i++ {
+		color := colors.Colors[i]
 
 		if hex == "#"+color.Hex {
 			return color.Name, nil
 		}
 
-		ndf1 = int(math.Pow(float64(r-color.R), 2) + math.Pow(float64(g-color.G), 2) + math.Pow(float64(b-color.B), 2))
-		ndf2 = int(math.Pow(h-color.H, 2) + math.Pow(s-color.S, 2) + math.Pow(l-color.L, 2))
-
+		ndf1 = int(math.Pow(float64(int(r)-color.R), 2) + math.Pow(float64(int(g)-color.G), 2) + math.Pow(float64(int(b)-color.B), 2))
+		ndf2 = int(math.Pow(float64(h-color.H), 2) + math.Pow(float64(s-color.S), 2) + math.Pow(float64(l-color.L), 2))
 		ndf = ndf1 + ndf2*2
 
 		if df < 0 || df > ndf {
