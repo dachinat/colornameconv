@@ -17,14 +17,17 @@ func HexToHSL(color string) (int, int, int) {
 	delta := max - min
 	l := (min + max) / 2
 
-	s := 0.0
+	s := 0.0;
+	d := 0.0;
 	if l > 0 && l < 1 {
 
 		if l < 0.5 {
-			s = delta / l
+			d = 2 * l
 		} else {
-			s = delta / (2 - 2*l)
+			d = 2 - 2 * l
 		}
+
+		s = delta / d
 	}
 
 	h := 0.0

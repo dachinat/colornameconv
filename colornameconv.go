@@ -39,8 +39,6 @@ func New(hex string) (string, error) {
 	cl, df := -1, -1
 	colors := readJson()
 
-	fmt.Println(colors.Colors[900])
-
 	for i := 0; i < len(colors.Colors); i++ {
 		color := colors.Colors[i]
 
